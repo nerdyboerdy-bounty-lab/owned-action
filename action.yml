@@ -1,0 +1,26 @@
+name: Owned Boundary Marker
+description: Synthetic owned action used only for GitHub bounty lab boundary probes.
+inputs:
+  lane:
+    description: Probe lane identifier.
+    required: true
+outputs:
+  marker:
+    description: Deterministic marker emitted by the owned action.
+    value: ${{ steps.marker.outputs.marker }}
+runs:
+  using: composite
+  steps:
+    - id: marker
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p boundary-evidence
+        {
+          echo "owned_action_marker=present"
+          echo "lane=${{ inputs.lane }}"
+          echo "repository=${GITHUB_REPOSITORY}"
+          echo "actor=${GITHUB_ACTOR}"
+          echo "sha=${GITHUB_SHA}"
+        } > boundary-evidence/owned-action-marker.txt
+        echo "marker=present" >> "$GITHUB_OUTPUT"
